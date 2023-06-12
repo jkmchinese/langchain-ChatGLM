@@ -113,25 +113,25 @@ class FastChatOpenAILLM(RemoteRpcModel, LLM, ABC):
                         history: List[List[str]] = [],
                         streaming: bool = False):
 
-        try:
-            import openai
-            # Not support yet
-            openai.api_key = "EMPTY"
-            openai.api_base = self.api_base_url
-        except ImportError:
-            raise ValueError(
-                "Could not import openai python package. "
-                "Please install it with `pip install openai`."
-            )
+        # try:
+        #     import openai
+        #     # Not support yet
+        #     openai.api_key = "EMPTY"
+        #     openai.api_base = self.api_base_url
+        # except ImportError:
+        #     raise ValueError(
+        #         "Could not import openai python package. "
+        #         "Please install it with `pip install openai`."
+        #     )
         # create a chat completion
-        completion = openai.ChatCompletion.create(
-            model=self.model_name,
-            messages=self.build_message_list(prompt)
-        )
-
-        history += [[prompt, completion.choices[0].message.content]]
+        # completion = openai.ChatCompletion.create(
+        #     model=self.model_name,
+        #     messages=self.build_message_list(prompt)
+        # )
+        test_answer = "this is answer......"
+        history += [[prompt, test_answer]]
         answer_result = AnswerResult()
         answer_result.history = history
-        answer_result.llm_output = {"answer": completion.choices[0].message.content}
+        answer_result.llm_output = {"answer": test_answer}
 
         yield answer_result

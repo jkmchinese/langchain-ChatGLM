@@ -93,7 +93,8 @@ def get_file_path(local_doc_id: str, doc_name: str):
 
 async def upload_file(
         file: UploadFile = File(description="A single binary file"),
-        knowledge_base_id: str = Form(..., description="Knowledge Base Name", example="kb1"),
+        knowledge_base_id: str = Form(...,
+                                      description="Knowledge Base Name", example="kb1"),
 ):
     saved_path = get_folder_path(knowledge_base_id)
     if not os.path.exists(saved_path):
@@ -110,7 +111,8 @@ async def upload_file(
         f.write(file_content)
 
     vs_path = get_vs_path(knowledge_base_id)
-    vs_path, loaded_files = local_doc_qa.init_knowledge_vector_store([file_path], vs_path)
+    vs_path, loaded_files = local_doc_qa.init_knowledge_vector_store([
+                                                                     file_path], vs_path)
     if len(loaded_files) > 0:
         file_status = f"文件 {file.filename} 已上传至新的知识库，并已加载知识库，请开始提问。"
         return BaseResponse(code=200, msg=file_status)
@@ -123,7 +125,8 @@ async def upload_files(
         files: Annotated[
             List[UploadFile], File(description="Multiple files as UploadFile")
         ],
-        knowledge_base_id: str = Form(..., description="Knowledge Base Name", example="kb1"),
+        knowledge_base_id: str = Form(...,
+                                      description="Knowledge Base Name", example="kb1"),
 ):
     saved_path = get_folder_path(knowledge_base_id)
     if not os.path.exists(saved_path):
@@ -139,7 +142,8 @@ async def upload_files(
             f.write(file_content)
         filelist.append(file_path)
     if filelist:
-        vs_path, loaded_files = local_doc_qa.init_knowledge_vector_store(filelist, get_vs_path(knowledge_base_id))
+        vs_path, loaded_files = local_doc_qa.init_knowledge_vector_store(
+            filelist, get_vs_path(knowledge_base_id))
         if len(loaded_files):
             file_status = f"已上传 {'、'.join([os.path.split(i)[-1] for i in loaded_files])} 至知识库，并已加载知识库，请开始提问"
             return BaseResponse(code=200, msg=file_status)
@@ -148,7 +152,8 @@ async def upload_files(
 
 
 async def list_docs(
-        knowledge_base_id: Optional[str] = Query(default=None, description="Knowledge Base Name", example="kb1")
+        knowledge_base_id: Optional[str] = Query(
+            default=None, description="Knowledge Base Name", example="kb1")
 ):
     if knowledge_base_id:
         local_doc_folder = get_folder_path(knowledge_base_id)
@@ -192,12 +197,14 @@ async def delete_docs(
             # 删除上传的文件后重新生成知识库（FAISS）内的数据
             remain_docs = await list_docs(knowledge_base_id)
             if len(remain_docs.data) == 0:
-                shutil.rmtree(get_folder_path(knowledge_base_id), ignore_errors=True)
+                shutil.rmtree(get_folder_path(
+                    knowledge_base_id), ignore_errors=True)
             else:
                 local_doc_qa.init_knowledge_vector_store(
-                    get_folder_path(knowledge_base_id), get_vs_path(knowledge_base_id)
+                    get_folder_path(knowledge_base_id), get_vs_path(
+                        knowledge_base_id)
                 )
-            
+
             return BaseResponse(code=200, msg=f"document {doc_name} delete success")
         else:
             return BaseResponse(code=1, msg=f"document {doc_name} not found")
@@ -208,7 +215,8 @@ async def delete_docs(
 
 
 async def local_doc_chat(
-        knowledge_base_id: str = Body(..., description="Knowledge Base Name", example="kb1"),
+        knowledge_base_id: str = Body(...,
+                                      description="Knowledge Base Name", example="kb1"),
         question: str = Body(..., description="Question", example="工伤保险是什么？"),
         history: List[List[str]] = Body(
             [],
@@ -235,10 +243,11 @@ async def local_doc_chat(
                 query=question, vs_path=vs_path, chat_history=history, streaming=True
         ):
             pass
+        sorted_source_documents = sorted(
+            resp["source_documents"], key=lambda x: x.metadata['score'])
         source_documents = [
-            f"""出处 [{inum + 1}] {os.path.split(doc.metadata['source'])[-1]}：\n\n{doc.page_content}\n\n"""
-            f"""相关度：{doc.metadata['score']}\n\n"""
-            for inum, doc in enumerate(resp["source_documents"])
+            f"""出处 [{inum + 1}] {os.path.split(doc.metadata['source'])[-1]} 相关度：{doc.metadata['score']}：\n\n{doc.page_content}\n\n"""
+            for inum, doc in enumerate(sorted_source_documents)
         ]
 
         return ChatMessage(
@@ -278,6 +287,7 @@ async def bing_search_chat(
         source_documents=source_documents,
     )
 
+
 async def chat(
         question: str = Body(..., description="Question", example="工伤保险是什么？"),
         history: List[List[str]] = Body(
@@ -310,7 +320,8 @@ async def stream_chat(websocket: WebSocket, knowledge_base_id: str):
     turn = 1
     while True:
         input_json = await websocket.receive_json()
-        question, history, knowledge_base_id = input_json["question"], input_json["history"], input_json["knowledge_base_id"]
+        question, history, knowledge_base_id = input_json[
+            "question"], input_json["history"], input_json["knowledge_base_id"]
         vs_path = os.path.join(VS_ROOT_PATH, knowledge_base_id)
 
         if not os.path.exists(vs_path):
@@ -351,9 +362,6 @@ async def document():
     return RedirectResponse(url="/docs")
 
 
-
-
-
 def api_start(host, port):
     global app
     global local_doc_qa
@@ -379,12 +387,18 @@ def api_start(host, port):
 
     app.post("/chat", response_model=ChatMessage)(chat)
 
-    app.post("/local_doc_qa/upload_file", response_model=BaseResponse)(upload_file)
-    app.post("/local_doc_qa/upload_files", response_model=BaseResponse)(upload_files)
-    app.post("/local_doc_qa/local_doc_chat", response_model=ChatMessage)(local_doc_chat)
-    app.post("/local_doc_qa/bing_search_chat", response_model=ChatMessage)(bing_search_chat)
-    app.get("/local_doc_qa/list_files", response_model=ListDocsResponse)(list_docs)
-    app.delete("/local_doc_qa/delete_file", response_model=BaseResponse)(delete_docs)
+    app.post("/local_doc_qa/upload_file",
+             response_model=BaseResponse)(upload_file)
+    app.post("/local_doc_qa/upload_files",
+             response_model=BaseResponse)(upload_files)
+    app.post("/local_doc_qa/local_doc_chat",
+             response_model=ChatMessage)(local_doc_chat)
+    app.post("/local_doc_qa/bing_search_chat",
+             response_model=ChatMessage)(bing_search_chat)
+    app.get("/local_doc_qa/list_files",
+            response_model=ListDocsResponse)(list_docs)
+    app.delete("/local_doc_qa/delete_file",
+               response_model=BaseResponse)(delete_docs)
 
     local_doc_qa = LocalDocQA()
     local_doc_qa.init_cfg(

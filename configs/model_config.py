@@ -17,6 +17,8 @@ embedding_model_dict = {
     "ernie-base": "nghuyong/ernie-3.0-base-zh",
     "text2vec-base": "shibing624/text2vec-base-chinese",
     "text2vec": "GanymedeNil/text2vec-large-chinese",
+    # "text2vec": "GanymedeNil/text2vec-large-chinese",
+    "text2vec": "C:\\Users\\jkmch\\.cache\\torch\\sentence_transformers\\GanymedeNil_text2vec-large-chinese",
     "m3e-small": "moka-ai/m3e-small",
     "m3e-base": "moka-ai/m3e-base",
 }
@@ -98,7 +100,7 @@ llm_model_dict = {
 }
 
 # LLM 名称
-LLM_MODEL = "chatglm-6b"
+LLM_MODEL = "fastchat-chatglm-6b"
 # 量化加载8bit 模型
 LOAD_IN_8BIT = False
 # Load the model with bfloat16 precision. Requires NVIDIA Ampere GPU.
@@ -134,10 +136,10 @@ PROMPT_TEMPLATE = """已知信息：
 CACHED_VS_NUM = 1
 
 # 文本分句长度
-SENTENCE_SIZE = 100
+SENTENCE_SIZE = 800
 
 # 匹配后单段上下文长度
-CHUNK_SIZE = 250
+CHUNK_SIZE = 800
 
 # LLM input history length
 LLM_HISTORY_LEN = 3
