@@ -253,7 +253,7 @@ async def local_doc_chat(
         return ChatMessage(
             question=question,
             response=resp["result"],
-            history=history,
+            history=[],
             source_documents=source_documents,
         )
 

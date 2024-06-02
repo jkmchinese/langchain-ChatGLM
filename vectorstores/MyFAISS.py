@@ -1,5 +1,5 @@
-from langchain.vectorstores import FAISS
 from langchain.vectorstores.base import VectorStore
+from langchain.vectorstores import FAISS
 from langchain.vectorstores.faiss import dependable_faiss_import
 from typing import Any, Callable, List, Tuple, Dict
 from langchain.docstore.base import Docstore

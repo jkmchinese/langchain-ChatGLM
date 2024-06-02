@@ -30,12 +30,15 @@ def main():
         while not vs_path:
             filepath = input(
                 "Input your local knowledge file path 请输入本地知识文件路径：")
+            vs_path = input(
+                "Input your local knowledge vector path 请输入本地知识文件路径：")
             # 判断 filepath 是否为空，如果为空的话，重新让用户输入,防止用户误触回车
             if not filepath:
                 continue
-            vs_path, _ = local_doc_qa.init_knowledge_vector_store(filepath)
+            vs_path = local_doc_qa.init_knowledge_vector_store(
+                filepath, vs_path)
     else:
-        vs_path = 'E:\\codes\\langchain-ChatGLM\\vector_store\\FAISS_gitlab'
+        vs_path = 'E:\\codes\\langchain-ChatGLM\\vector_store\\vmp-99_FAISS_20240526_121843'
         history = []
         while True:
             query = input("Input your question 请输入问题：")
