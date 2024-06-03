@@ -17,7 +17,7 @@ import models.shared as shared
 from models.loader.args import parser
 from models.loader import LoaderCheckPoint
 
-from content.crawl import startCrawl
+from crawl_module.crawl import startCrawl
 
 nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
 
