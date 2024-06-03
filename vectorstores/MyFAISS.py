@@ -5,6 +5,7 @@ from typing import Any, Callable, List, Tuple, Dict
 from langchain.docstore.base import Docstore
 from langchain.docstore.document import Document
 import numpy as np
+import copy
 
 
 class MyFAISS(FAISS, VectorStore):
@@ -51,7 +52,7 @@ class MyFAISS(FAISS, VectorStore):
                 # This happens when not enough docs are returned.
                 continue
             _id = self.index_to_docstore_id[i]
-            doc = self.docstore.search(_id)
+            doc = copy.deepcopy(self.docstore.search(_id))
             if (not self.chunk_conent) or ("context_expand" in doc.metadata and not doc.metadata["context_expand"]):
                 if not isinstance(doc, Document):
                     raise ValueError(f"Could not find document for id {_id}, got {doc}")
@@ -71,7 +72,7 @@ class MyFAISS(FAISS, VectorStore):
                 for l in expand_range:
                     if l not in id_set and 0 <= l < len(self.index_to_docstore_id):
                         _id0 = self.index_to_docstore_id[l]
-                        doc0 = self.docstore.search(_id0)
+                        doc0 = copy.deepcopy(self.docstore.search(_id0))
                         if docs_len + len(doc0.page_content) > self.chunk_size or doc0.metadata["source"] != doc.metadata["source"]:
                             break_flag = True
                             break
@@ -90,10 +91,10 @@ class MyFAISS(FAISS, VectorStore):
             for id in id_seq:
                 if id == id_seq[0]:
                     _id = self.index_to_docstore_id[id]
-                    doc = self.docstore.search(_id)
+                    doc = copy.deepcopy(self.docstore.search(_id))
                 else:
                     _id0 = self.index_to_docstore_id[id]
-                    doc0 = self.docstore.search(_id0)
+                    doc0 = copy.deepcopy(self.docstore.search(_id0))
                     doc.page_content += " " + doc0.page_content
             if not isinstance(doc, Document):
                 raise ValueError(f"Could not find document for id {_id}, got {doc}")
