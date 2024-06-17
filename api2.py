@@ -27,6 +27,7 @@ class Document(BaseModel):
     link: str = Field(..., description="link")
     score: int = Field(..., description="score")
     content: str = Field(..., description="content")
+    title: str = Field(..., description="title")
 
 
 class SearchResult(BaseModel):
@@ -86,6 +87,7 @@ async def search(
             count=len(searchDocs),
             documents=[Document(
                 score=doc.metadata['score'],
+                title=doc.metadata['title'],
                 content=doc.page_content,
                 source=os.path.split(doc.metadata['source'])[-1],
                 link=getLink(os.path.split(doc.metadata['source'])[-1]))

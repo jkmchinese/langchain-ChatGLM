@@ -40,6 +40,9 @@ def load_vector_store(vs_path, embeddings):
 def load_file(filepath, sentence_size=SENTENCE_SIZE):
     loader = UnstructuredFileLoader(filepath, mode="elements")
     docs = loader.load()
+    title = docs[1].page_content
+    for doc in docs:
+        doc.metadata['title'] = title
     return docs
 
 
