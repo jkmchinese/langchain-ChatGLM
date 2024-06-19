@@ -6,6 +6,7 @@ from langchain.docstore.base import Docstore
 from langchain.docstore.document import Document
 import numpy as np
 import copy
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 
 class MyFAISS(FAISS, VectorStore):
@@ -37,7 +38,12 @@ class MyFAISS(FAISS, VectorStore):
         return lists
 
     def similarity_search_with_score_by_vector(
-            self, embedding: List[float], k: int = 4
+            self,
+            embedding: List[float],
+            k: int = 4,
+            filter: Optional[Dict[str, Any]] = None,
+            fetch_k: int = 20,
+            **kwargs: Any,
     ) -> List[Document]:
         faiss = dependable_faiss_import()
         vector = np.array([embedding], dtype=np.float32)
@@ -54,7 +60,12 @@ class MyFAISS(FAISS, VectorStore):
             _id = self.index_to_docstore_id[i]
             doc = copy.deepcopy(self.docstore.search(_id))
             doc.metadata["score"] = int(scores[0][j])
-            docs.append(doc)
+            matching_doc = next(
+                (d for d in docs if d.metadata['source'] == doc.metadata['source']), None)
+            if matching_doc is None:
+                docs.append(doc)
+            else:
+                matching_doc.page_content = matching_doc.page_content + "\n" + doc.page_content
 
         # for j, i in enumerate(indices[0]):
         #     if i == -1 or 0 < self.score_threshold < scores[0][j]:

@@ -38,3 +38,4 @@ def startCrawl(updatedAfterTime: str) -> int:
                        token=token,
                        project_name=project_vmp_name)
     print(f"vmp end...")
+    return count

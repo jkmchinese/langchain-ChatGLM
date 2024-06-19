@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import json
 import re
+import os
 
 # curl --location 'http://git.rdapp.com/api/v4/projects/125/issues?state=opened&iid=&labels=&milestone=&order_by=created_at&sort=desc&page=0&per_page=20&created_after=2023-06-02' \
 # --header 'PRIVATE-TOKEN: NKd-kzFHcix232CDmZr3'
@@ -68,7 +69,7 @@ def crawlCore(
         count += len(issues)
         for issue in issues:
             # print(issue["标题"])
-            with open(f'../content/gitlab/{project_name}/{project_name}-{issue["id"]}.md', 'w', encoding='utf-8', newline='\n') as f:
+            with open(f'{os.getcwd()}/content/gitlab/{project_name}/{project_name}-{issue["id"]}.md', 'w', encoding='utf-8', newline='\n') as f:
                 f.writelines(generate_lines(issue))
 
         if len(issues) == 0:
